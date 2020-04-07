@@ -1,1 +1,1 @@
-# Othello
+# Dots and Boxes
