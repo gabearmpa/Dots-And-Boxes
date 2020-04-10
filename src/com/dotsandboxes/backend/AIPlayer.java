@@ -19,27 +19,27 @@ public class AIPlayer extends Player {
 							
 							if (i == Line.LEFT_LINE) {
 								
-								Dot dot1 = new Dot(c, r);
-								Dot dot2 = new Dot(c, r + 1);
+								Dot dot1 = new Dot(r, c);
+								Dot dot2 = new Dot(r + 1, c);
 								return new Dot[] {dot1, dot2};
 								
 							} else if (i == Line.TOP_LINE) {
 								
-								Dot dot1 = new Dot(c, r);
-								Dot dot2 = new Dot(c + 1, r);
+								Dot dot1 = new Dot(r, c);
+								Dot dot2 = new Dot(r, c + 1);
 								return new Dot[] {dot1, dot2};
 								
 							} else if (i == Line.RIGHT_LINE) {
 								
-								Dot dot1 = new Dot(c + 1, r);
-								Dot dot2 = new Dot(c + 1, r + 1);
+								Dot dot1 = new Dot(r, c + 1);
+								Dot dot2 = new Dot(r + 1, c + 1);
 								return new Dot[] {dot1, dot2};
 								
 							} else {
 								// bottom line
 								
-								Dot dot1 = new Dot(c, r + 1);
-								Dot dot2 = new Dot(c + 1, r + 1);
+								Dot dot1 = new Dot(r + 1, c);
+								Dot dot2 = new Dot(r + 1, c + 1);
 								return new Dot[] {dot1, dot2};
 								
 							}

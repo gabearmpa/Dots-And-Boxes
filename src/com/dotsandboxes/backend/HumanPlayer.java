@@ -13,8 +13,8 @@ public class HumanPlayer extends Player {
 	@Override
 	public Dot[] play(Board b) {
 
-		System.out.println("Enter two dots, as dot-one-x dot-one-y dot-two-x dot-two-y");
-		System.out.println("  > ");
+		System.out.println("Enter two dots, as dot-one-row dot-one-col dot-two-row dot-two-col");
+		System.out.print("  > ");
 		
 		Dot dot1 = new Dot(keyboard.nextInt(), keyboard.nextInt());
 		Dot dot2 = new Dot(keyboard.nextInt(), keyboard.nextInt());

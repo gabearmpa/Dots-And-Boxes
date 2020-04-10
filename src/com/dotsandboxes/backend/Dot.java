@@ -2,11 +2,11 @@ package com.dotsandboxes.backend;
 
 public class Dot {
 	
-	public final int x;
-	public final int y;
+	public final int r;
+	public final int c;
 	
-	public Dot(int x, int y) {
-		this.x = x;
-		this.y = y;
+	public Dot(int r, int c) {
+		this.r = r;
+		this.c = c;
 	}
 }

@@ -57,23 +57,23 @@ public class Board {
 		boolean extraTurn = false;
 
 		// horizontal line
-		if (dot1.x == dot2.x && Math.abs(dot1.y - dot2.y) == 1) {
+		if (dot1.r == dot2.r && Math.abs(dot1.c - dot2.c) == 1) {
 
 			Dot leftDot;
 
-			if (dot1.y - dot2.y == 1) {
+			if (dot1.c - dot2.c == 1) {
 				leftDot = dot2;
 			} else {
 				leftDot = dot1;
 			}
 
-			int botBoxY = leftDot.y;
-			int topBoxY = leftDot.y - 1;
-			int boxX = leftDot.x;
+			int botBoxR = leftDot.r;
+			int topBoxR = leftDot.r - 1;
+			int boxC = leftDot.c;
 
 			// top box
-			if (topBoxY >= 0) {
-				Box b = boxes[boxX][topBoxY];
+			if (topBoxR >= 0) {
+				Box b = boxes[topBoxR][boxC];
 				Line l = b.getLine(Line.BOT_LINE);
 				
 				if (l.getValue() != Line.EMPTY) {
@@ -88,8 +88,8 @@ public class Board {
 			}
 
 			// bottom box
-			if (botBoxY < numRows) {
-				Box b = boxes[boxX][botBoxY];
+			if (botBoxR < numRows) {
+				Box b = boxes[botBoxR][boxC];
 				
 				Line l = b.getLine(Line.TOP_LINE);
 				
@@ -107,23 +107,23 @@ public class Board {
 		}
 
 		// vertical line
-		else if (dot1.y == dot2.y && Math.abs(dot1.x - dot2.x) == 1) {
+		else if (dot1.c == dot2.c && Math.abs(dot1.r - dot2.r) == 1) {
 
 			Dot topDot;
 
-			if (dot1.x - dot2.x == 1) {
+			if (dot1.r - dot2.r == 1) {
 				topDot = dot2;
 			} else  {
 				topDot = dot1;
 			}
 
-			int rightBoxX = topDot.x;
-			int leftBoxX = topDot.x - 1;
-			int boxY = topDot.y;
+			int rightBoxC = topDot.c;
+			int leftBoxC = topDot.c - 1;
+			int boxR = topDot.r;
 
 			// left box
-			if (leftBoxX >= 0) {
-				Box b = boxes[leftBoxX][boxY];
+			if (leftBoxC >= 0) {
+				Box b = boxes[boxR][leftBoxC];
 				
 				Line l = b.getLine(Line.RIGHT_LINE);
 				
@@ -139,8 +139,8 @@ public class Board {
 			}
 
 			// right box
-			if (rightBoxX < numCols) {
-				Box b = boxes[rightBoxX][boxY];
+			if (rightBoxC < numCols) {
+				Box b = boxes[boxR][rightBoxC];
 				Line l = b.getLine(Line.LEFT_LINE);
 				
 				if (l.getValue() != Line.EMPTY) {

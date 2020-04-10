@@ -20,7 +20,7 @@ public class Game {
 		player2Color = Box.WHITE;
 	}
 	
-	public int gameLoop() throws Exception {
+	public int gameLoop() {
 		
 		// randomize later
 		int currentPlayer = player1Color;
@@ -46,14 +46,20 @@ public class Game {
 			Dot dot1 = play[0];
 			Dot dot2 = play[1];
 			
-			boolean extraTurn = board.placeLine(currentPlayer, dot1, dot2);
+			try {
 			
-			if (!extraTurn) {
-				if (currentPlayer == player1Color) {
-					currentPlayer = player2Color;
-				} else {
-					currentPlayer = player1Color;
+				boolean extraTurn = board.placeLine(currentPlayer, dot1, dot2);
+				
+				if (!extraTurn) {
+					if (currentPlayer == player1Color) {
+						currentPlayer = player2Color;
+					} else {
+						currentPlayer = player1Color;
+					}
 				}
+			
+			} catch (Exception e) {
+				System.out.println("Invalid play");
 			}
 			
 		}
