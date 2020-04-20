@@ -15,6 +15,10 @@ public class Line {
 	public Line() {
 		setValue(Line.EMPTY);
 	}
+	
+	public Line(Line l) {
+		setValue(l.getValue());
+	}
 
 	public int getValue() {
 		return value;

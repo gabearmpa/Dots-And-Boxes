@@ -9,4 +9,8 @@ public class Dot {
 		this.r = r;
 		this.c = c;
 	}
+	
+	public String toString() {
+		return "r:" + r + ",c:" + c;
+	}
 }

@@ -5,25 +5,21 @@ public class Game {
 	private Player player1;
 	private Player player2;
 	
-	private int player1Color;
-	private int player2Color;
-	
 	private Board board;
 	
 	public Game(int numRows, int numCols) {
-		board = new Board(numRows, numCols);
+		board = new Board(new Board(numRows, numCols));
 		
-		player1 = new HumanPlayer();
-		player2 = new AIPlayer();
+		// currently can play human vs. human, human vs. AI, or AI vs. AI
 		
-		player1Color = Box.BLACK;
-		player2Color = Box.WHITE;
+		player1 = new MiniMaxAI(Box.BLACK);
+		player2 = new MiniMaxAI(Box.WHITE);
 	}
 	
 	public int gameLoop() {
 		
 		// randomize later
-		int currentPlayer = player1Color;
+		int currentPlayer = player1.color;
 		
 		while (!board.isGameOver()) {
 			
@@ -31,9 +27,9 @@ public class Game {
 			System.out.println(board);
 			System.out.println();
 			
-			Dot[] play;
+			Move play;
 			
-			if (currentPlayer == player1Color) {
+			if (currentPlayer == player1.color) {
 				
 				play = player1.play(board);
 				
@@ -43,18 +39,18 @@ public class Game {
 				
 			}
 			
-			Dot dot1 = play[0];
-			Dot dot2 = play[1];
+			Dot dot1 = play.first();
+			Dot dot2 = play.second();
 			
 			try {
 			
 				boolean extraTurn = board.placeLine(currentPlayer, dot1, dot2);
 				
 				if (!extraTurn) {
-					if (currentPlayer == player1Color) {
-						currentPlayer = player2Color;
+					if (currentPlayer == player1.color) {
+						currentPlayer = player2.color;
 					} else {
-						currentPlayer = player1Color;
+						currentPlayer = player1.color;
 					}
 				}
 			
@@ -65,16 +61,20 @@ public class Game {
 		}
 		
 		// calculate score
-		int player1Score = board.calculateScore(player1Color);
-		int player2Score = board.calculateScore(player2Color);
+		int player1Score = board.calculateScore(player1.color);
+		int player2Score = board.calculateScore(player2.color);
+		
+		System.out.println();
+		System.out.println(board);
+		System.out.println();
 		
 		System.out.println("Player 1: " + player1Score);
 		System.out.println("Player 2: " + player2Score);
 		
 		if (player1Score > player2Score) {
-			return player1Color;
+			return player1.color;
 		} else if (player2Score > player1Score) {
-			return player2Color;
+			return player2.color;
 		} else {
 			return -1;
 		}

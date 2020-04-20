@@ -1,5 +1,8 @@
 package com.dotsandboxes.backend;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class Board {
 
 	public final int numRows;
@@ -42,6 +45,46 @@ public class Board {
 			}
 		}
 
+	}
+	
+	// copy constructor
+	public Board(Board b) {
+		this.numRows = b.numRows;
+		this.numCols = b.numCols;
+
+		boxes = new Box[numRows][numCols];
+		
+		// build boxes
+
+				for (int r = 0; r < numRows; r++) {
+					for (int c = 0; c < numCols; c++) {
+						
+						Box otherBox = b.boxes[r][c];
+
+						Line rightLine = new Line(otherBox.getLine(Line.RIGHT_LINE));
+						Line botLine = new Line(otherBox.getLine(Line.BOT_LINE));
+
+						Line topLine;
+						if (r == 0) {
+							topLine = new Line(otherBox.getLine(Line.TOP_LINE));
+						} else {
+							topLine = boxes[r - 1][c].getLine(Line.BOT_LINE);
+						}
+
+						Line leftLine;
+						if (c == 0) {
+							leftLine = new Line(otherBox.getLine(Line.LEFT_LINE));
+						} else {
+							leftLine = boxes[r][c - 1].getLine(Line.RIGHT_LINE);
+						}
+
+						Box box = new Box(leftLine, topLine, rightLine, botLine);
+						
+						box.setValue(otherBox.getValue());
+
+						boxes[r][c] = box;
+					}
+				}
 	}
 
 	/**
@@ -167,6 +210,54 @@ public class Board {
 	public Box[][] getBoxes() {
 		// copy
 		return boxes;
+	}
+	
+	public Set<Move> getMoves() {
+		Set<Move> moves = new HashSet<>();
+		
+		for (int r = 0; r < numRows; r++) {
+			for (int c = 0; c < numCols; c++) {
+				
+				Box box = boxes[r][c];
+				
+				if (box.getValue() == Box.EMPTY) {
+					for (int i = 0; i < 4; i++) {
+						Line l = box.getLine(i);
+						
+						if (l.getValue() == Line.EMPTY) {
+							if (i == Line.LEFT_LINE) {
+								
+								Dot dot1 = new Dot(r, c);
+								Dot dot2 = new Dot(r + 1, c);
+								moves.add(new Move(dot1, dot2));
+								
+							} else if (i == Line.TOP_LINE) {
+								
+								Dot dot1 = new Dot(r, c);
+								Dot dot2 = new Dot(r, c + 1);
+								moves.add(new Move(dot1, dot2));
+								
+							} else if (i == Line.RIGHT_LINE) {
+								
+								Dot dot1 = new Dot(r, c + 1);
+								Dot dot2 = new Dot(r + 1, c + 1);
+								moves.add(new Move(dot1, dot2));
+								
+							} else {
+								// bottom line
+								
+								Dot dot1 = new Dot(r + 1, c);
+								Dot dot2 = new Dot(r + 1, c + 1);
+								moves.add(new Move(dot1, dot2));
+								
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return moves;
 	}
 
 	public boolean isGameOver() {
