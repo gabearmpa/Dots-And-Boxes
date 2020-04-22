@@ -1,10 +1,16 @@
 package com.dotsandboxes.backend;
 
 public class MiniMaxAI extends Player {
+	
+	private int ply;
 
-	public MiniMaxAI(int color) {
+	public MiniMaxAI(int color, int ply) {
 		super(color);
+		
+		this.ply = ply;
 	}
+	
+	public static long totalTimeNanos = 0;
 
 	@Override
 	public Move play(Board b) {
@@ -14,18 +20,25 @@ public class MiniMaxAI extends Player {
 		
 		MoveValue max;
 		
+		long startTime = System.nanoTime();
+		
 		try {
-			 max = maxValue(board, Integer.MIN_VALUE, Integer.MAX_VALUE);
+			 max = maxValue(board, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
 		} catch (Exception e) {
 			max = new MoveValue(0);
 			System.out.println("NO");
+			System.out.println(e.getMessage());
 		}
+		
+		long endTime = System.nanoTime();
+		
+		totalTimeNanos += (endTime - startTime);
 		
 		return max.move;
 	}
 	
-	public MoveValue maxValue(Board board, int alpha, int beta) throws Exception {
-		if (board.isGameOver()) {
+	public MoveValue maxValue(Board board, int alpha, int beta, int depth) throws Exception {
+		if (depth >= ply || board.isGameOver()) {
 			return new MoveValue(utility(board));
 		}
 		
@@ -33,16 +46,19 @@ public class MiniMaxAI extends Player {
 		
 		for (Move m : board.getMoves()) {
 			// copy the board, make the play
-			Board newBoard = new Board(board);
-			boolean extraTurn = newBoard.placeLine(color, m.first(), m.second());
+			//Board newBoard = new Board(board);
+			
+			boolean extraTurn = board.placeLine(color, m.first(), m.second());
 			
 			// see if continuing branch would increase value
 			MoveValue branchValue;
 			if (extraTurn) {
-				branchValue = maxValue(newBoard, alpha, beta);
+				branchValue = maxValue(board, alpha, beta, depth + 1);
 			} else {
-				branchValue = minValue(newBoard, alpha, beta);
+				branchValue = minValue(board, alpha, beta, depth + 1);
 			}
+			
+			board.undoMove(m.first(), m.second());
 			
 			if (branchValue.value > moveValue.value) {
 				moveValue.value = branchValue.value;
@@ -63,8 +79,8 @@ public class MiniMaxAI extends Player {
 		return moveValue;
 	}
 	
-	public MoveValue minValue(Board board, int alpha, int beta) throws Exception {
-		if (board.isGameOver()) {
+	public MoveValue minValue(Board board, int alpha, int beta, int depth) throws Exception {
+		if (depth >= ply || board.isGameOver()) {
 			return new MoveValue(utility(board));
 		}
 		
@@ -72,16 +88,19 @@ public class MiniMaxAI extends Player {
 		
 		for (Move m : board.getMoves()) {
 			// copy the board, make the play
-			Board newBoard = new Board(board);
-			boolean extraTurn = newBoard.placeLine(color, m.first(), m.second());
+			//Board newBoard = new Board(board);
+			
+			boolean extraTurn = board.placeLine(otherColor(), m.first(), m.second());
 			
 			// see if continuing branch would decrease value
 			MoveValue branchValue;
 			if (extraTurn) {
-				branchValue = minValue(newBoard, alpha, beta);
+				branchValue = minValue(board, alpha, beta, depth + 1);
 			} else {
-				branchValue = maxValue(newBoard, alpha, beta);
+				branchValue = maxValue(board, alpha, beta, depth + 1);
 			}
+			
+			board.undoMove(m.first(), m.second());
 			
 			if (branchValue.value < moveValue.value) {
 				moveValue.value = branchValue.value;

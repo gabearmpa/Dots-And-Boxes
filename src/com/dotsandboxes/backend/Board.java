@@ -49,6 +49,7 @@ public class Board {
 	
 	// copy constructor
 	public Board(Board b) {
+		
 		this.numRows = b.numRows;
 		this.numCols = b.numCols;
 
@@ -56,35 +57,35 @@ public class Board {
 		
 		// build boxes
 
-				for (int r = 0; r < numRows; r++) {
-					for (int c = 0; c < numCols; c++) {
-						
-						Box otherBox = b.boxes[r][c];
+		for (int r = 0; r < numRows; r++) {
+			for (int c = 0; c < numCols; c++) {
+				
+				Box otherBox = b.boxes[r][c];
 
-						Line rightLine = new Line(otherBox.getLine(Line.RIGHT_LINE));
-						Line botLine = new Line(otherBox.getLine(Line.BOT_LINE));
+				Line rightLine = new Line(otherBox.getLine(Line.RIGHT_LINE));
+				Line botLine = new Line(otherBox.getLine(Line.BOT_LINE));
 
-						Line topLine;
-						if (r == 0) {
-							topLine = new Line(otherBox.getLine(Line.TOP_LINE));
-						} else {
-							topLine = boxes[r - 1][c].getLine(Line.BOT_LINE);
-						}
-
-						Line leftLine;
-						if (c == 0) {
-							leftLine = new Line(otherBox.getLine(Line.LEFT_LINE));
-						} else {
-							leftLine = boxes[r][c - 1].getLine(Line.RIGHT_LINE);
-						}
-
-						Box box = new Box(leftLine, topLine, rightLine, botLine);
-						
-						box.setValue(otherBox.getValue());
-
-						boxes[r][c] = box;
-					}
+				Line topLine;
+				if (r == 0) {
+					topLine = new Line(otherBox.getLine(Line.TOP_LINE));
+				} else {
+					topLine = boxes[r - 1][c].getLine(Line.BOT_LINE);
 				}
+
+				Line leftLine;
+				if (c == 0) {
+					leftLine = new Line(otherBox.getLine(Line.LEFT_LINE));
+				} else {
+					leftLine = boxes[r][c - 1].getLine(Line.RIGHT_LINE);
+				}
+
+				Box box = new Box(leftLine, topLine, rightLine, botLine);
+				
+				box.setValue(otherBox.getValue());
+
+				boxes[r][c] = box;
+			}
+		}
 	}
 
 	/**
@@ -205,6 +206,100 @@ public class Board {
 		
 		return extraTurn;
 
+	}
+	
+	public void undoMove(Dot dot1, Dot dot2) throws Exception {
+
+		if (dot1.r == dot2.r && Math.abs(dot1.c - dot2.c) == 1) {
+
+			Dot leftDot;
+
+			if (dot1.c - dot2.c == 1) {
+				leftDot = dot2;
+			} else {
+				leftDot = dot1;
+			}
+
+			int botBoxR = leftDot.r;
+			int topBoxR = leftDot.r - 1;
+			int boxC = leftDot.c;
+
+			// top box
+			if (topBoxR >= 0) {
+				Box b = boxes[topBoxR][boxC];
+				Line l = b.getLine(Line.BOT_LINE);
+				
+				if (l.getValue() == Line.EMPTY) {
+					throw new Exception("Line is empty but tried to remove it");
+				}
+				
+				l.setValue(Line.EMPTY);
+				b.setValue(Box.EMPTY);
+			}
+
+			// bottom box
+			if (botBoxR < numRows) {
+				Box b = boxes[botBoxR][boxC];
+				
+				Line l = b.getLine(Line.TOP_LINE);
+				
+				if (l.getValue() == Line.EMPTY) {
+					//throw new Exception("Line is empty but tried to remove it");
+				}
+				
+				l.setValue(Line.EMPTY);
+				b.setValue(Box.EMPTY);
+			}
+
+		}
+
+		// vertical line
+		else if (dot1.c == dot2.c && Math.abs(dot1.r - dot2.r) == 1) {
+
+			Dot topDot;
+
+			if (dot1.r - dot2.r == 1) {
+				topDot = dot2;
+			} else  {
+				topDot = dot1;
+			}
+
+			int rightBoxC = topDot.c;
+			int leftBoxC = topDot.c - 1;
+			int boxR = topDot.r;
+
+			// left box
+			if (leftBoxC >= 0) {
+				Box b = boxes[boxR][leftBoxC];
+				
+				Line l = b.getLine(Line.RIGHT_LINE);
+				
+				if (l.getValue() == Line.EMPTY) {
+					throw new Exception("Line is empty but tried to remove it");
+				}
+				
+				l.setValue(Line.EMPTY);
+				b.setValue(Box.EMPTY);
+			}
+
+			// right box
+			if (rightBoxC < numCols) {
+				Box b = boxes[boxR][rightBoxC];
+				Line l = b.getLine(Line.LEFT_LINE);
+				
+				if (l.getValue() == Line.EMPTY) {
+					//throw new Exception("Line is empty but tried to remove it");
+				}
+				
+				l.setValue(Line.EMPTY);
+				b.setValue(Box.EMPTY);
+			}
+		}
+
+		// invalid
+		else {
+			throw new Exception("Invalid dot selection");
+		}
 	}
 	
 	public Box[][] getBoxes() {

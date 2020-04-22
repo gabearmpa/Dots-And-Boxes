@@ -12,8 +12,8 @@ public class Game {
 		
 		// currently can play human vs. human, human vs. AI, or AI vs. AI
 		
-		player1 = new MiniMaxAI(Box.BLACK);
-		player2 = new MiniMaxAI(Box.WHITE);
+		player1 = new MiniMaxAI(Box.BLACK, 8);
+		player2 = new MiniMaxAI(Box.WHITE, 8);
 	}
 	
 	public int gameLoop() {
@@ -25,6 +25,8 @@ public class Game {
 			
 			System.out.println();
 			System.out.println(board);
+			System.out.println();
+			System.out.println("Player " + currentPlayer + "'s turn:");
 			System.out.println();
 			
 			Move play;
