@@ -1,6 +1,10 @@
 package com.dotsandboxes.backend;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Board {
@@ -29,6 +33,7 @@ public class Board {
 				if (r == 0) {
 					topLine = new Line();
 				} else {
+					// line is above box
 					topLine = boxes[r - 1][c].getLine(Line.BOT_LINE);
 				}
 
@@ -36,10 +41,17 @@ public class Board {
 				if (c == 0) {
 					leftLine = new Line();
 				} else {
+					// line is left of box
 					leftLine = boxes[r][c - 1].getLine(Line.RIGHT_LINE);
 				}
 
 				Box box = new Box(leftLine, topLine, rightLine, botLine);
+				
+				leftLine.setBox2(box);
+				topLine.setBox2(box);
+				
+				rightLine.setBox1(box);
+				botLine.setBox1(box);
 
 				boxes[r][c] = box;
 			}
@@ -81,12 +93,24 @@ public class Board {
 
 				Box box = new Box(leftLine, topLine, rightLine, botLine);
 				
+				leftLine.setBox2(box);
+				topLine.setBox2(box);
+				
+				rightLine.setBox1(box);
+				botLine.setBox1(box);
+				
 				box.setValue(otherBox.getValue());
 
 				boxes[r][c] = box;
 			}
 		}
 	}
+	
+	
+	public static long totalPlaceLineNanos = 0;
+	public static long totalUndoLineNanos = 0;
+	public static long totalGetMovesNanos = 0;
+	public static long totalSortMovesNanos = 0;
 
 	/**
 	 * Play a line, updating the boxes, and return true if player gets another turn
@@ -97,6 +121,8 @@ public class Board {
 	 * @throws Exception
 	 */
 	public boolean placeLine(int player, Dot dot1, Dot dot2) throws Exception {
+		
+		long startTime = System.nanoTime();
 
 		boolean extraTurn = false;
 
@@ -204,11 +230,17 @@ public class Board {
 			throw new Exception("Invalid dot selection");
 		}
 		
+		long endTime = System.nanoTime();
+		
+		totalPlaceLineNanos += endTime - startTime;
+		
 		return extraTurn;
 
 	}
 	
 	public void undoMove(Dot dot1, Dot dot2) throws Exception {
+		
+		long startTime = System.nanoTime();
 
 		if (dot1.r == dot2.r && Math.abs(dot1.c - dot2.c) == 1) {
 
@@ -300,6 +332,10 @@ public class Board {
 		else {
 			throw new Exception("Invalid dot selection");
 		}
+		
+		long endTime = System.nanoTime();
+		
+		totalUndoLineNanos += endTime - startTime;
 	}
 	
 	public Box[][] getBoxes() {
@@ -307,8 +343,13 @@ public class Board {
 		return boxes;
 	}
 	
-	public Set<Move> getMoves() {
-		Set<Move> moves = new HashSet<>();
+	private List<Move> getMoves() {
+		
+		long startTime = System.nanoTime();
+		
+		Set<Line> lines = new HashSet<>();
+		
+		List<Move> moves = new ArrayList<>();
 		
 		for (int r = 0; r < numRows; r++) {
 			for (int c = 0; c < numCols; c++) {
@@ -319,38 +360,71 @@ public class Board {
 					for (int i = 0; i < 4; i++) {
 						Line l = box.getLine(i);
 						
-						if (l.getValue() == Line.EMPTY) {
+						// only check unique lines
+						if (l.getValue() == Line.EMPTY && !lines.contains(l)) {
+						
+							lines.add(l);
+							
+							int filledAfter = l.numLinesFilledAfter();							
+							
 							if (i == Line.LEFT_LINE) {
 								
 								Dot dot1 = new Dot(r, c);
 								Dot dot2 = new Dot(r + 1, c);
-								moves.add(new Move(dot1, dot2));
+								moves.add(new Move(dot1, dot2, filledAfter));
 								
 							} else if (i == Line.TOP_LINE) {
 								
 								Dot dot1 = new Dot(r, c);
 								Dot dot2 = new Dot(r, c + 1);
-								moves.add(new Move(dot1, dot2));
+								moves.add(new Move(dot1, dot2, filledAfter));
 								
 							} else if (i == Line.RIGHT_LINE) {
 								
 								Dot dot1 = new Dot(r, c + 1);
 								Dot dot2 = new Dot(r + 1, c + 1);
-								moves.add(new Move(dot1, dot2));
+								moves.add(new Move(dot1, dot2, filledAfter));
 								
 							} else {
 								// bottom line
 								
 								Dot dot1 = new Dot(r + 1, c);
 								Dot dot2 = new Dot(r + 1, c + 1);
-								moves.add(new Move(dot1, dot2));
+								moves.add(new Move(dot1, dot2, filledAfter));
 								
 							}
+							
 						}
 					}
 				}
 			}
 		}
+		
+		long endTime = System.nanoTime();
+		
+		totalGetMovesNanos += endTime - startTime;
+		
+		return moves;
+	}
+	
+	public List<Move> getOrderedMoves() {
+		
+		List<Move> moves = getMoves();
+		
+		long startTime = System.nanoTime();
+		
+		Collections.shuffle(moves);
+		
+		moves.sort(new Comparator<Move>() {
+			@Override
+			public int compare(Move m1, Move m2) {
+				return m1.moveType - m2.moveType;
+			}
+		});
+		
+		long endTime = System.nanoTime();
+		
+		totalSortMovesNanos += endTime - startTime;
 		
 		return moves;
 	}

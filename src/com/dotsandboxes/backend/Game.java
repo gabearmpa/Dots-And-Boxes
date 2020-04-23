@@ -12,8 +12,8 @@ public class Game {
 		
 		// currently can play human vs. human, human vs. AI, or AI vs. AI
 		
-		player1 = new MiniMaxAI(Box.BLACK, 8);
-		player2 = new MiniMaxAI(Box.WHITE, 8);
+		player1 = new MiniMaxAI(Box.BLACK, 10);
+		player2 = new MiniMaxAI(Box.WHITE, 10);
 	}
 	
 	public int gameLoop() {

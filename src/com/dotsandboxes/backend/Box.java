@@ -51,5 +51,17 @@ public class Box {
 	public Line getLine(int i) {
 		return lines[i];
 	}
+	
+	public int numLinesFilled() {
+		int sum = 0;
+		
+		for (Line l : lines) {
+			if (l.getValue() == Line.FULL) {
+				sum += 1;
+			}
+		}
+		
+		return sum;
+	}
 
 }

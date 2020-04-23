@@ -10,6 +10,9 @@ public class Line {
 	public static final int RIGHT_LINE = 2;
 	public static final int BOT_LINE = 3;
 	
+	private Box box1 = null;
+	private Box box2 = null;
+	
 	private int value;
 	
 	public Line() {
@@ -17,7 +20,35 @@ public class Line {
 	}
 	
 	public Line(Line l) {
-		setValue(l.getValue());
+		this.value = l.value;
+	}
+	
+	public int numLinesFilledAfter() {
+		if (box1 == null) {
+			return box2.numLinesFilled() + 1;
+		} else if (box2 == null) {
+			return box1.numLinesFilled() + 1;
+		} else {
+			// both not null
+			
+			return Math.max(box1.numLinesFilled() + 1, box2.numLinesFilled() + 1);
+		}
+	}
+	
+	public Box getBox1() {
+		return box1;
+	}
+	
+	public Box getBox2() {
+		return box2;
+	}
+	
+	public void setBox1(Box box) {
+		this.box1 = box;
+	}
+	
+	public void setBox2(Box box) {
+		this.box2 = box;
 	}
 
 	public int getValue() {

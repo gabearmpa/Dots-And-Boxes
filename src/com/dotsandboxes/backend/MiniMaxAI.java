@@ -44,9 +44,7 @@ public class MiniMaxAI extends Player {
 		
 		MoveValue moveValue = new MoveValue(Integer.MIN_VALUE);
 		
-		for (Move m : board.getMoves()) {
-			// copy the board, make the play
-			//Board newBoard = new Board(board);
+		for (Move m : board.getOrderedMoves()) {
 			
 			boolean extraTurn = board.placeLine(color, m.first(), m.second());
 			
@@ -86,9 +84,7 @@ public class MiniMaxAI extends Player {
 		
 		MoveValue moveValue = new MoveValue(Integer.MAX_VALUE);
 		
-		for (Move m : board.getMoves()) {
-			// copy the board, make the play
-			//Board newBoard = new Board(board);
+		for (Move m : board.getOrderedMoves()) {
 			
 			boolean extraTurn = board.placeLine(otherColor(), m.first(), m.second());
 			
