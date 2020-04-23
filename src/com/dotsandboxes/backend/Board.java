@@ -463,9 +463,23 @@ public class Board {
 		return score;
 	}
 	
-	@Override
-	public String toString() {
+	private String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	
+	public Dot getDot(char ch) {
+		int index = alphabet.indexOf(ch);
+		
+		int r = index / (numCols + 1);
+		int c = index % (numCols + 1);
+		
+		System.out.println(ch + " : " + r + "," + c);
+		
+		return new Dot(r, c);
+	}
+	
+	public String toString(boolean withLetters) {
 		StringBuilder sb = new StringBuilder();
+		
+		int position = 0;
 		
 		for (int r = 0; r < numRows; r++) {
 			
@@ -474,7 +488,12 @@ public class Board {
 				for (int c = 0; c < numCols; c++) {
 					
 					if (c == 0) {
-						sb.append("+");
+						if (withLetters) {
+							sb.append(alphabet.charAt(position));
+							position += 1;
+						} else {
+							sb.append("+");
+						}
 					}
 					
 					if (boxes[r][c].getLine(Line.TOP_LINE).getValue() == Line.FULL) {
@@ -483,7 +502,12 @@ public class Board {
 						sb.append(" ");
 					}
 					
-					sb.append("+");
+					if (withLetters) {
+						sb.append(alphabet.charAt(position));
+						position += 1;
+					} else {
+						sb.append("+");
+					}
 					
 				}
 				
@@ -522,7 +546,12 @@ public class Board {
 			for (int c = 0; c < numCols; c++) {
 				
 				if (c == 0) {
-					sb.append("+");
+					if (withLetters) {
+						sb.append(alphabet.charAt(position));
+						position += 1;
+					} else {
+						sb.append("+");
+					}
 				}
 				
 				if (boxes[r][c].getLine(Line.BOT_LINE).getValue() == Line.FULL) {
@@ -530,8 +559,13 @@ public class Board {
 				} else {
 					sb.append(" ");
 				}
-				
-				sb.append("+");
+
+				if (withLetters) {
+					sb.append(alphabet.charAt(position));
+					position += 1;
+				} else {
+					sb.append("+");
+				}
 				
 			}
 			
@@ -539,6 +573,11 @@ public class Board {
 		}
 		
 		return sb.toString();
+	}
+	
+	@Override
+	public String toString() {
+		return this.toString(false);
 	}
 
 }

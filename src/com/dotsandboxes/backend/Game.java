@@ -1,30 +1,61 @@
 package com.dotsandboxes.backend;
 
+import java.util.Scanner;
+
 public class Game {
 	
-	private Player player1;
-	private Player player2;
+	private final int NUM_PLAYERS = 2;
+	
+	private Player[] players;
 	
 	private Board board;
+	
+	Scanner keyboard;
 	
 	public Game(int numRows, int numCols) {
 		board = new Board(new Board(numRows, numCols));
 		
-		// currently can play human vs. human, human vs. AI, or AI vs. AI
+		players = new Player[NUM_PLAYERS];
+		int[] colors = new int[] { Box.BLACK, Box.WHITE };
 		
-		player1 = new MiniMaxAI(Box.BLACK, 10);
-		player2 = new MiniMaxAI(Box.WHITE, 10);
+		keyboard = new Scanner(System.in);
+		
+		// validation later
+		
+		for (int i = 0; i < players.length; i++) {
+			System.out.print("Enter player 1's ply (if 0, human player): ");
+			
+			int ply = keyboard.nextInt();
+			
+			if (ply == 0) {
+				players[i] = new HumanPlayer(colors[i]);
+			} else if (ply > 0) {
+				players[i] = new MiniMaxAI(colors[i], ply);
+			}
+			
+		}
 	}
 	
 	public int gameLoop() {
+		
+		Player player1 = players[0];
+		Player player2 = players[1];
 		
 		// randomize later
 		int currentPlayer = player1.color;
 		
 		while (!board.isGameOver()) {
 			
+			boolean withLetters = false;
+			
+			if (player1.color == currentPlayer && player1 instanceof HumanPlayer ||
+				player2.color == currentPlayer && player2 instanceof HumanPlayer) {
+				
+				withLetters = true;
+			}
+			
 			System.out.println();
-			System.out.println(board);
+			System.out.println(board.toString(withLetters));
 			System.out.println();
 			System.out.println("Player " + currentPlayer + "'s turn:");
 			System.out.println();
@@ -72,6 +103,8 @@ public class Game {
 		
 		System.out.println("Player 1: " + player1Score);
 		System.out.println("Player 2: " + player2Score);
+		
+		keyboard.close();
 		
 		if (player1Score > player2Score) {
 			return player1.color;

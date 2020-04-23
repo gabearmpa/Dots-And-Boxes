@@ -14,11 +14,11 @@ public class HumanPlayer extends Player {
 	@Override
 	public Move play(Board b) {
 
-		System.out.println("Enter two dots, as dot-one-row dot-one-col dot-two-row dot-two-col");
+		System.out.println("Enter two neighboring space-separated symbols (case sensitive) for dots");
 		System.out.print("  > ");
 		
-		Dot dot1 = new Dot(keyboard.nextInt(), keyboard.nextInt());
-		Dot dot2 = new Dot(keyboard.nextInt(), keyboard.nextInt());
+		Dot dot1 = b.getDot(keyboard.next().charAt(0));
+		Dot dot2 = b.getDot(keyboard.next().charAt(0));
 		
 		return new Move(dot1, dot2);
 		
