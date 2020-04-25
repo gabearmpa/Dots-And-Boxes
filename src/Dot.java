@@ -1,4 +1,3 @@
-package com.dotsandboxes.backend;
 
 public class Dot {
 	

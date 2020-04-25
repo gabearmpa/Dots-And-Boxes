@@ -1,4 +1,3 @@
-package com.dotsandboxes.backend;
 
 public class Box {
 	
@@ -9,6 +8,13 @@ public class Box {
 	private int value;
 	private Line[] lines;
 	
+	/**
+	 * constructor
+	 * @param leftLine
+	 * @param topLine
+	 * @param rightLine
+	 * @param botLine
+	 */
 	public Box(Line leftLine, Line topLine, Line rightLine, Line botLine) {
 		this.value = Box.EMPTY;
 		
@@ -20,7 +26,11 @@ public class Box {
 		lines[Line.BOT_LINE] = botLine;
 	}
 	
-	
+	/**
+	 * after a move occurs, see if we have filled
+	 * @param player set value to this if filled
+	 * @return true if filled
+	 */
 	public boolean updateBox(int player) {
 		
 		boolean allFilled = true;
@@ -52,6 +62,9 @@ public class Box {
 		return lines[i];
 	}
 	
+	/**
+	 * @return number of adjacent lines currently filled
+	 */
 	public int numLinesFilled() {
 		int sum = 0;
 		

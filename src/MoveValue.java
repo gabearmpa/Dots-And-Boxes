@@ -1,4 +1,5 @@
-package com.dotsandboxes.backend;
+
+// container for a move and its value (move added later)
 
 public class MoveValue {
 	

@@ -1,4 +1,3 @@
-package com.dotsandboxes.backend;
 
 import java.util.Scanner;
 
@@ -8,7 +7,7 @@ public class HumanPlayer extends Player {
 	
 	public HumanPlayer(int color) {
 		super(color);
-		this.keyboard = new Scanner(System.in);
+		this.keyboard = new Scanner(System.in); // System.in will be closed by main
 	}
 
 	@Override
@@ -17,6 +16,7 @@ public class HumanPlayer extends Player {
 		System.out.println("Enter two neighboring space-separated symbols (case sensitive) for dots");
 		System.out.print("  > ");
 		
+		// get dots as chars, convert them to Dot objects
 		Dot dot1 = b.getDot(keyboard.next().charAt(0));
 		Dot dot2 = b.getDot(keyboard.next().charAt(0));
 		

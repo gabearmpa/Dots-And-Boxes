@@ -1,4 +1,3 @@
-package com.dotsandboxes.backend;
 
 public class Line {
 	
@@ -23,6 +22,9 @@ public class Line {
 		this.value = l.value;
 	}
 	
+	/**
+	 * @return the most number of lines filled in an adjacent box after this line gets toggled on
+	 */
 	public int numLinesFilledAfter() {
 		if (box1 == null) {
 			return box2.numLinesFilled() + 1;

@@ -1,5 +1,3 @@
-package com.dotsandboxes.backend;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,6 +17,7 @@ public class Board {
 		this.numRows = numRows;
 		this.numCols = numCols;
 
+		// initialize the array of boxes
 		boxes = new Box[numRows][numCols];
 
 		// build boxes
@@ -26,9 +25,11 @@ public class Board {
 		for (int r = 0; r < numRows; r++) {
 			for (int c = 0; c < numCols; c++) {
 
+				// each box creates the line to the right and bottom of it
 				Line rightLine = new Line();
 				Line botLine = new Line();
 
+				// pull the top line from the box above it, unless we are in the first row
 				Line topLine;
 				if (r == 0) {
 					topLine = new Line();
@@ -37,6 +38,7 @@ public class Board {
 					topLine = boxes[r - 1][c].getLine(Line.BOT_LINE);
 				}
 
+				// pull the left line from the box left of it, unless we are in the first column
 				Line leftLine;
 				if (c == 0) {
 					leftLine = new Line();
@@ -45,8 +47,10 @@ public class Board {
 					leftLine = boxes[r][c - 1].getLine(Line.RIGHT_LINE);
 				}
 
+				// create the box
 				Box box = new Box(leftLine, topLine, rightLine, botLine);
 				
+				// give the lines access to the box
 				leftLine.setBox2(box);
 				topLine.setBox2(box);
 				
@@ -73,6 +77,8 @@ public class Board {
 			for (int c = 0; c < numCols; c++) {
 				
 				Box otherBox = b.boxes[r][c];
+				
+				// pull all four lines from the other box
 
 				Line rightLine = new Line(otherBox.getLine(Line.RIGHT_LINE));
 				Line botLine = new Line(otherBox.getLine(Line.BOT_LINE));
@@ -91,8 +97,10 @@ public class Board {
 					leftLine = boxes[r][c - 1].getLine(Line.RIGHT_LINE);
 				}
 
+				// create the box
 				Box box = new Box(leftLine, topLine, rightLine, botLine);
 				
+				// give lines access to box object
 				leftLine.setBox2(box);
 				topLine.setBox2(box);
 				
@@ -105,12 +113,6 @@ public class Board {
 			}
 		}
 	}
-	
-	
-	public static long totalPlaceLineNanos = 0;
-	public static long totalUndoLineNanos = 0;
-	public static long totalGetMovesNanos = 0;
-	public static long totalSortMovesNanos = 0;
 
 	/**
 	 * Play a line, updating the boxes, and return true if player gets another turn
@@ -118,12 +120,11 @@ public class Board {
 	 * @param dot1
 	 * @param dot2
 	 * @return
-	 * @throws Exception
+	 * @throws Exception if play was illegal
 	 */
 	public boolean placeLine(int player, Dot dot1, Dot dot2) throws Exception {
-		
-		long startTime = System.nanoTime();
 
+		// keep track of whether play finished a box
 		boolean extraTurn = false;
 
 		// horizontal line
@@ -131,17 +132,19 @@ public class Board {
 
 			Dot leftDot;
 
+			// find left dot and right dot
 			if (dot1.c - dot2.c == 1) {
 				leftDot = dot2;
 			} else {
 				leftDot = dot1;
 			}
 
+			// get r and c values of boxes
 			int botBoxR = leftDot.r;
 			int topBoxR = leftDot.r - 1;
 			int boxC = leftDot.c;
 
-			// top box
+			// update top box
 			if (topBoxR >= 0) {
 				Box b = boxes[topBoxR][boxC];
 				Line l = b.getLine(Line.BOT_LINE);
@@ -157,15 +160,11 @@ public class Board {
 				}
 			}
 
-			// bottom box
+			// update bottom box
 			if (botBoxR < numRows) {
 				Box b = boxes[botBoxR][boxC];
 				
 				Line l = b.getLine(Line.TOP_LINE);
-				
-				if (l.getValue() != Line.EMPTY) {
-					//throw new Exception("Line is not empty but played there anyway");
-				}
 				
 				l.setValue(Line.FULL);
 
@@ -181,26 +180,24 @@ public class Board {
 
 			Dot topDot;
 
+			// find top dot and bottom dot
 			if (dot1.r - dot2.r == 1) {
 				topDot = dot2;
 			} else  {
 				topDot = dot1;
 			}
 
+			// get r and c values of boxes
 			int rightBoxC = topDot.c;
 			int leftBoxC = topDot.c - 1;
 			int boxR = topDot.r;
 
-			// left box
+			// update left box
 			if (leftBoxC >= 0) {
 				Box b = boxes[boxR][leftBoxC];
 				
 				Line l = b.getLine(Line.RIGHT_LINE);
 				
-				if (l.getValue() != Line.EMPTY) {
-					throw new Exception("Line is not empty but played there anyway");
-				}
-				
 				l.setValue(Line.FULL);
 
 				if (b.updateBox(player)) {
@@ -208,15 +205,11 @@ public class Board {
 				}
 			}
 
-			// right box
+			// update right box
 			if (rightBoxC < numCols) {
 				Box b = boxes[boxR][rightBoxC];
 				Line l = b.getLine(Line.LEFT_LINE);
 				
-				if (l.getValue() != Line.EMPTY) {
-					//throw new Exception("Line is not empty but played there anyway");
-				}
-				
 				l.setValue(Line.FULL);
 
 				if (b.updateBox(player)) {
@@ -225,33 +218,35 @@ public class Board {
 			}
 		}
 
-		// invalid
+		// invalid - dots not next to each other
 		else {
 			throw new Exception("Invalid dot selection");
 		}
-		
-		long endTime = System.nanoTime();
-		
-		totalPlaceLineNanos += endTime - startTime;
 		
 		return extraTurn;
 
 	}
 	
+	/**
+	 * Given the dots played, undo a move (used in MiniMax algorithm to save memory)
+	 * @param dot1
+	 * @param dot2
+	 * @throws Exception if the undo was illegal
+	 */
 	public void undoMove(Dot dot1, Dot dot2) throws Exception {
 		
-		long startTime = System.nanoTime();
-
 		if (dot1.r == dot2.r && Math.abs(dot1.c - dot2.c) == 1) {
 
 			Dot leftDot;
 
+			// find left dot and right dot
 			if (dot1.c - dot2.c == 1) {
 				leftDot = dot2;
 			} else {
 				leftDot = dot1;
 			}
 
+			// get r and c values of boxes
 			int botBoxR = leftDot.r;
 			int topBoxR = leftDot.r - 1;
 			int boxC = leftDot.c;
@@ -275,10 +270,6 @@ public class Board {
 				
 				Line l = b.getLine(Line.TOP_LINE);
 				
-				if (l.getValue() == Line.EMPTY) {
-					//throw new Exception("Line is empty but tried to remove it");
-				}
-				
 				l.setValue(Line.EMPTY);
 				b.setValue(Box.EMPTY);
 			}
@@ -290,12 +281,14 @@ public class Board {
 
 			Dot topDot;
 
+			// find top dot and bottom dot
 			if (dot1.r - dot2.r == 1) {
 				topDot = dot2;
 			} else  {
 				topDot = dot1;
 			}
 
+			// get r and c values of boxes
 			int rightBoxC = topDot.c;
 			int leftBoxC = topDot.c - 1;
 			int boxR = topDot.r;
@@ -319,45 +312,41 @@ public class Board {
 				Box b = boxes[boxR][rightBoxC];
 				Line l = b.getLine(Line.LEFT_LINE);
 				
-				if (l.getValue() == Line.EMPTY) {
-					//throw new Exception("Line is empty but tried to remove it");
-				}
-				
 				l.setValue(Line.EMPTY);
 				b.setValue(Box.EMPTY);
 			}
 		}
 
-		// invalid
+		// invalid - dots not next to each other
 		else {
 			throw new Exception("Invalid dot selection");
 		}
-		
-		long endTime = System.nanoTime();
-		
-		totalUndoLineNanos += endTime - startTime;
 	}
 	
-	public Box[][] getBoxes() {
-		// copy
-		return boxes;
-	}
-	
+	/**
+	 * build a list of valid moves to make
+	 * @return
+	 */
 	private List<Move> getMoves() {
 		
-		long startTime = System.nanoTime();
-		
+		// explored set of lines
 		Set<Line> lines = new HashSet<>();
 		
+		// list of moves (composed of two dots on either end of the line)
 		List<Move> moves = new ArrayList<>();
 		
+		// iterate through the boxes
 		for (int r = 0; r < numRows; r++) {
 			for (int c = 0; c < numCols; c++) {
 				
 				Box box = boxes[r][c];
 				
+				// only check empty boxes - full boxes will not have any empty lines
 				if (box.getValue() == Box.EMPTY) {
+					
+					// check the lines of the box
 					for (int i = 0; i < 4; i++) {
+						
 						Line l = box.getLine(i);
 						
 						// only check unique lines
@@ -365,7 +354,10 @@ public class Board {
 						
 							lines.add(l);
 							
+							// the max number of lines it will leave adjacent boxes with
 							int filledAfter = l.numLinesFilledAfter();							
+							
+							// for each side, find the corresponding dots, make a new move object
 							
 							if (i == Line.LEFT_LINE) {
 								
@@ -400,10 +392,6 @@ public class Board {
 			}
 		}
 		
-		long endTime = System.nanoTime();
-		
-		totalGetMovesNanos += endTime - startTime;
-		
 		return moves;
 	}
 	
@@ -411,10 +399,10 @@ public class Board {
 		
 		List<Move> moves = getMoves();
 		
-		long startTime = System.nanoTime();
-		
+		// shuffle the list of moves
 		Collections.shuffle(moves);
 		
+		// sort the list of moves
 		moves.sort(new Comparator<Move>() {
 			@Override
 			public int compare(Move m1, Move m2) {
@@ -422,15 +410,12 @@ public class Board {
 			}
 		});
 		
-		long endTime = System.nanoTime();
-		
-		totalSortMovesNanos += endTime - startTime;
-		
 		return moves;
 	}
 
 	public boolean isGameOver() {
 		
+		// if you find any empty box, the game is not over
 		for (int r = 0; r < numRows; r++) {
 			for (int c = 0; c < numCols; c++) {
 				
@@ -447,6 +432,8 @@ public class Board {
 	}
 	
 	public int calculateScore(int player) {
+		// the score for a given player is how many boxes have their value
+		
 		int score = 0;
 		
 		for (int r = 0; r < numRows; r++) {
@@ -462,20 +449,28 @@ public class Board {
 		
 		return score;
 	}
+	// alphabet of letters to be used for dots, to allow user input
+	public static final String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwyxz";
 	
-	private String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-	
+	/**
+	 * convert a character from user input to dot coordinates
+	 * @param ch
+	 * @return Dot object for that location
+	 */
 	public Dot getDot(char ch) {
 		int index = alphabet.indexOf(ch);
 		
 		int r = index / (numCols + 1);
 		int c = index % (numCols + 1);
 		
-		System.out.println(ch + " : " + r + "," + c);
-		
 		return new Dot(r, c);
 	}
 	
+	/**
+	 * convert the board to a human-readable string for console output
+	 * @param withLetters use letters from alphabet instead of "+"s for easier user input
+	 * @return
+	 */
 	public String toString(boolean withLetters) {
 		StringBuilder sb = new StringBuilder();
 		
